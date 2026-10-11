@@ -88,7 +88,7 @@ export default function App() {
       <div className="app">
         <div className="splash">
           <div className="splash-hero">
-            <MeizhiPhoto id="now" className="splash-art" />
+            <MeizhiPhoto id="now" className="splash-art" eager />
           </div>
           <PolaroidStrip exclude={["now"]} />
           <div className="splash-title">
@@ -246,7 +246,7 @@ export default function App() {
 
       {detail && (
         <Sheet title={detail.name} onClose={() => setDetail(null)}>
-          <FoodPhoto dish={detail} className="hero" onClick={() => setZoom(detail)} />
+          <FoodPhoto dish={detail} className="hero" eager onClick={() => setZoom(detail)} />
           <p className="credit">给美志看的菜图 · {detail.region}</p>
           <p>{detail.blurb}</p>
           <div className="meta">
@@ -418,7 +418,7 @@ function SkuSheet({
   const [staple, setStaple] = useState(dish.extraStaple ?? "");
   return (
     <Sheet title={dish.name} onClose={onClose}>
-      <FoodPhoto dish={dish} className="hero" />
+      <FoodPhoto dish={dish} className="hero" eager />
       <p>辣度</p>
       <div className="opts">
         {([0, 1, 2, 3] as Spice[]).map((n) => (
@@ -497,7 +497,7 @@ function Home({
     <div className="page">
       <div className="top">
         <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-          <MeizhiPhoto id="now" className="avatar" />
+          <MeizhiPhoto id="now" className="avatar" eager />
           <div>
             <small>Duffy & Friends · 专属厨房</small>
             <h2 className="display">美志，来吃饭啦</h2>
@@ -535,7 +535,7 @@ function Home({
         <div className="pick-row">
           {picks.map((d) => (
             <div key={d.id} className="pick">
-              <FoodPhoto dish={d} />
+              <FoodPhoto dish={d} eager />
               <div className="body">
                 <b>{d.name}</b>
                 <button className="mini" onClick={() => onPick(d)}>
@@ -641,22 +641,11 @@ function Menu(props: {
 
   function jump(c: string) {
     props.setCat(c);
-    const el = listRef.current?.querySelector(`[data-cat="${c}"]`);
-    el?.scrollIntoView({ behavior: "smooth", block: "start" });
+    listRef.current?.scrollTo({ top: 0 });
   }
 
-  function onScroll() {
-    const root = listRef.current;
-    if (!root) return;
-    const tops = grouped
-      .map((g) => {
-        const el = root.querySelector(`[data-cat="${g.c}"]`) as HTMLElement | null;
-        return { c: g.c, top: el ? el.getBoundingClientRect().top : 9999 };
-      })
-      .filter((x) => x.top < 180);
-    const current = tops[tops.length - 1];
-    if (current && current.c !== props.activeCat) props.setCat(current.c);
-  }
+  const searching = props.q.trim().length > 0;
+  const shown = searching ? grouped : grouped.filter((g) => g.c === props.activeCat);
 
   return (
     <div className="menu-page">
@@ -698,8 +687,8 @@ function Menu(props: {
             </button>
           ))}
         </div>
-        <div className="list" ref={listRef} onScroll={onScroll}>
-          {grouped.map((g) => (
+        <div className="list" ref={listRef}>
+          {shown.map((g) => (
             <div key={g.c} data-cat={g.c}>
               <h3 style={{ fontSize: 14, margin: "8px 4px" }}>{g.c}</h3>
               {g.items.map((d) => {

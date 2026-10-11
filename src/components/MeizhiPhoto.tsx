@@ -1,4 +1,5 @@
-import { asset } from "../asset";
+import { useState } from "react";
+import { asset, localAsset } from "../asset";
 
 export const MEIZHI_SHOTS = [
   { id: "now", caption: "现在的美志" },
@@ -9,8 +10,31 @@ export const MEIZHI_SHOTS = [
 
 export type MeizhiShot = (typeof MEIZHI_SHOTS)[number]["id"];
 
-export function MeizhiPhoto({ id, className }: { id: MeizhiShot; className?: string }) {
-  return <img className={className} src={asset(`meizhi/${id}.jpg`)} alt="美志" />;
+export function MeizhiPhoto({
+  id,
+  className,
+  eager,
+}: {
+  id: MeizhiShot;
+  className?: string;
+  eager?: boolean;
+}) {
+  const cdn = asset(`meizhi/${id}.jpg`);
+  const local = localAsset(`meizhi/${id}.jpg`);
+  const [src, setSrc] = useState(cdn);
+  return (
+    <img
+      className={className}
+      src={src}
+      alt="美志"
+      loading={eager ? "eager" : "lazy"}
+      decoding="async"
+      fetchPriority={eager ? "high" : "low"}
+      onError={() => {
+        if (src === cdn && cdn !== local) setSrc(local);
+      }}
+    />
+  );
 }
 
 export function PolaroidStrip({

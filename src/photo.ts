@@ -1,4 +1,4 @@
-import { asset } from "./asset";
+import { localAsset } from "./asset";
 import type { Dish, KitchenId } from "./types";
 
 const mem = new Map<string, string>();
@@ -33,7 +33,7 @@ async function commonsThumb(query: string): Promise<string | null> {
 }
 
 export async function resolveDishImage(dish: Dish): Promise<string> {
-  const local = asset(`food/${dish.id}.jpg`);
+  const local = localAsset(`food/${dish.id}.jpg`);
   const cached = mem.get(dish.id) || localStorage.getItem(`foodimg:${dish.id}`);
   if (cached) return cached;
   try {
@@ -71,7 +71,7 @@ const FRIEND_WIKI: Record<KitchenId, string> = {
 };
 
 export async function resolveFriendImage(id: KitchenId): Promise<string> {
-  const local = asset(`friends/${id}.jpg`);
+  const local = localAsset(`friends/${id}.jpg`);
   const cached = mem.get(`f:${id}`) || localStorage.getItem(`friendimg:${id}`);
   if (cached) return cached;
   try {
