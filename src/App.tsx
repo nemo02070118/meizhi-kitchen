@@ -2,7 +2,7 @@ import { useMemo, useRef, useState, type ReactNode } from "react";
 import { FoodPhoto } from "./components/FoodPhoto";
 import { FriendPhoto } from "./components/FriendPhoto";
 import { MeizhiPhoto, PolaroidStrip } from "./components/MeizhiPhoto";
-import { FoodStage, Peek, ScenePeeks } from "./components/Peek";
+import { Cutout } from "./components/Peek";
 import { itemLine, shopList, spiceLabel, ticketText } from "./copy";
 import { categoriesFor, DISH_MAP, DISHES, todayPicks } from "./data/dishes";
 import { KITCHENS, kitchenById } from "./data/kitchens";
@@ -86,17 +86,17 @@ export default function App() {
   if (!s.seenSplash) {
     return (
       <div className="app">
-        <ScenePeeks kitchen="duffy" />
         <div className="splash">
           <div className="splash-hero">
-            <Peek id="duffy" pose="hang" talk="美志来吃饭啦" />
             <MeizhiPhoto id="now" className="splash-art" />
-            <Peek id="stellalou" pose="sit" talk="贵州也可以点" />
           </div>
-          <PolaroidStrip />
-          <h1 className="display">美志的达菲厨房</h1>
+          <PolaroidStrip exclude={["now"]} />
+          <div className="splash-title">
+            <Cutout id="duffy" className="title-bear" />
+            <h1 className="display">美志的达菲厨房</h1>
+          </div>
           <p>
-            不在同一个城市也能点。新疆、贵州、全国家常都在里面。点完会变成一张给男朋友下厨的小票。达菲会扒在菜上陪你点。
+            不在同一个城市也能点。新疆、贵州、全国家常都在里面。点完会变成一张给男朋友下厨的小票。
           </p>
           <button className="primary" onClick={s.dismissSplash}>
             开始点菜
@@ -132,7 +132,6 @@ export default function App() {
 
   return (
     <div className="app">
-      {!detail && !sku && !cartOpen && <ScenePeeks kitchen={kitchen === "all" ? "duffy" : kitchen} />}
       {tab === "home" && (
         <Home
           stamps={s.stamps}
@@ -247,9 +246,7 @@ export default function App() {
 
       {detail && (
         <Sheet title={detail.name} onClose={() => setDetail(null)}>
-          <FoodStage kitchen={detail.kitchen}>
-            <FoodPhoto dish={detail} className="hero" onClick={() => setZoom(detail)} />
-          </FoodStage>
+          <FoodPhoto dish={detail} className="hero" onClick={() => setZoom(detail)} />
           <p className="credit">给美志看的菜图 · {detail.region}</p>
           <p>{detail.blurb}</p>
           <div className="meta">
@@ -323,9 +320,7 @@ export default function App() {
             if (!dish) return null;
             return (
               <div className="row" key={item.key}>
-                <FoodStage kitchen={dish.kitchen}>
-                  <FoodPhoto dish={dish} className="thumb" />
-                </FoodStage>
+                <FoodPhoto dish={dish} className="thumb" />
                 <div style={{ flex: 1 }}>
                   <b>{dish.name}</b>
                   <div className="credit">{itemLine(item)}</div>
@@ -423,9 +418,7 @@ function SkuSheet({
   const [staple, setStaple] = useState(dish.extraStaple ?? "");
   return (
     <Sheet title={dish.name} onClose={onClose}>
-      <FoodStage kitchen={dish.kitchen}>
-        <FoodPhoto dish={dish} className="hero" />
-      </FoodStage>
+      <FoodPhoto dish={dish} className="hero" />
       <p>辣度</p>
       <div className="opts">
         {([0, 1, 2, 3] as Spice[]).map((n) => (
@@ -504,7 +497,7 @@ function Home({
     <div className="page">
       <div className="top">
         <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-          <MeizhiPhoto id="glasses" className="avatar" />
+          <MeizhiPhoto id="now" className="avatar" />
           <div>
             <small>Duffy & Friends · 专属厨房</small>
             <h2 className="display">美志，来吃饭啦</h2>
@@ -518,14 +511,14 @@ function Home({
       </div>
       <div className="quick">
         <button className="xj" onClick={() => onKitchen("gelatoni")}>
-          <FriendPhoto id="gelatoni" />
+          <Cutout id="gelatoni" />
           <div>
             <b>进新疆厨房</b>
             <span>Gelatoni · 大盘鸡抓饭</span>
           </div>
         </button>
         <button className="gz" onClick={() => onKitchen("stellalou")}>
-          <FriendPhoto id="stellalou" />
+          <Cutout id="stellalou" />
           <div>
             <b>进贵州厨房</b>
             <span>StellaLou · 酸汤丝娃娃</span>
@@ -542,9 +535,7 @@ function Home({
         <div className="pick-row">
           {picks.map((d) => (
             <div key={d.id} className="pick">
-              <FoodStage kitchen={d.kitchen}>
-                <FoodPhoto dish={d} />
-              </FoodStage>
+              <FoodPhoto dish={d} />
               <div className="body">
                 <b>{d.name}</b>
                 <button className="mini" onClick={() => onPick(d)}>
@@ -581,11 +572,7 @@ function Home({
       <div className="kitchen-grid">
         {KITCHENS.map((k) => (
           <article key={k.id} className={`kitchen-card friend-${k.id}`}>
-            <div className="cover-wrap">
-              <Peek id="duffy" pose="hang" talk={k.line} />
-              <FriendPhoto id={k.id} className="cover" />
-              <Peek id={k.id} pose="sit" talk="进来坐" />
-            </div>
+            <FriendPhoto id={k.id} className="cover" />
             <div className="body">
               <b>{k.name}</b>
               <span>{k.job}</span>
@@ -621,7 +608,7 @@ function DuffyMascot({ kitchen, onTalk }: { kitchen: KitchenId; onTalk: (t: stri
       }}
     >
       {open && <span className="bubble">{lines[kitchen]}</span>}
-      <FriendPhoto id={kitchen} />
+      <Cutout id={kitchen} />
     </button>
   );
 }
@@ -720,9 +707,7 @@ function Menu(props: {
                 const qty = inCart.reduce((n, c) => n + c.qty, 0);
                 return (
                   <article className="dish" key={d.id}>
-                    <FoodStage kitchen={d.kitchen}>
-                      <FoodPhoto dish={d} onClick={() => props.onOpen(d)} />
-                    </FoodStage>
+                    <FoodPhoto dish={d} onClick={() => props.onOpen(d)} />
                     <div>
                       <h3>{d.name}</h3>
                       <p>{d.blurb}</p>
@@ -801,7 +786,7 @@ function Fav({
       </div>
       {fav.length === 0 && (
         <div className="empty">
-          <FriendPhoto id="duffy" />
+          <Cutout id="duffy" className="empty-cut" />
           <p>还没有收藏。点菜单里的「收藏」就好。</p>
           <button className="primary" onClick={onGoMenu}>
             去菜单收藏
@@ -810,9 +795,7 @@ function Fav({
       )}
       {fav.map((d) => (
         <article className="dish" key={d.id} style={{ padding: "10px 16px" }}>
-          <FoodStage kitchen={d.kitchen}>
-            <FoodPhoto dish={d} onClick={() => onOpen(d)} />
-          </FoodStage>
+          <FoodPhoto dish={d} onClick={() => onOpen(d)} />
           <div>
             <h3>{d.name}</h3>
             <p>{d.blurb}</p>
@@ -839,9 +822,7 @@ function Fav({
       {wish.length === 0 && <p style={{ padding: "0 16px", color: "var(--muted)" }}>心愿还是空的，点「以后想吃」记给男朋友。</p>}
       {wish.map((d) => (
         <article className="dish" key={d.id} style={{ padding: "10px 16px" }}>
-          <FoodStage kitchen={d.kitchen}>
-            <FoodPhoto dish={d} onClick={() => onOpen(d)} />
-          </FoodStage>
+          <FoodPhoto dish={d} onClick={() => onOpen(d)} />
           <div>
             <h3>{d.name}</h3>
             <p>心愿菜，不一定今晚做</p>
@@ -902,7 +883,7 @@ function Tickets({
   if (tickets.length === 0) {
     return (
       <div className="empty">
-        <FriendPhoto id="cookieann" />
+        <Cutout id="cookieann" className="empty-cut" />
         <p>还没有小票。点一桌，CookieAnn 会记下来。</p>
       </div>
     );
@@ -911,29 +892,20 @@ function Tickets({
     <div className="page">
       {tickets.map((t) => (
         <div className="ticket" key={t.id} style={t.id === lastId ? { outline: "2px solid #e89a7a" } : undefined}>
-          <div className="stickers" aria-hidden="true">
-            <span className="sticker s1">想你</span>
-            <span className="sticker s2">Duffy</span>
-            <span className="sticker s3">好吃</span>
-            <span className="sticker s4">美志专属</span>
-          </div>
-          <Peek id="cookieann" pose="hang" talk="小票记好啦" />
           <div className="ticket-head">
-            <MeizhiPhoto id="little" className="stamp-face" />
+            <MeizhiPhoto id="now" className="stamp-face" />
             <div>
               <b className="display">达菲厨房小票</b>
               <div className="credit">{new Date(t.at).toLocaleString()}</div>
             </div>
-            <MeizhiPhoto id="train" className="stamp-face" />
+            <Cutout id="duffy" className="ticket-bear" />
           </div>
           {t.items.map((item) => {
             const dish = DISH_MAP[item.dishId];
             if (!dish) return null;
             return (
               <div className="row" key={item.key}>
-                <FoodStage kitchen={dish.kitchen}>
-                  <FoodPhoto dish={dish} />
-                </FoodStage>
+                <FoodPhoto dish={dish} />
                 <div>
                   {itemLine(item)}
                   <div className="credit">给美志看的菜</div>
