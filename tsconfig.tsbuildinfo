@@ -1,0 +1,1 @@
+{"root":["./src/app.tsx","./src/asset.ts","./src/copy.ts","./src/main.tsx","./src/photo.ts","./src/state.ts","./src/types.ts","./src/vite-env.d.ts","./src/components/foodphoto.tsx","./src/components/friendphoto.tsx","./src/components/meizhiphoto.tsx","./src/components/peek.tsx","./src/data/dishes.ts","./src/data/kitchens.ts"],"version":"5.9.3"}
